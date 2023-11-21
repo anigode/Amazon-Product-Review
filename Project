@@ -1,0 +1,294 @@
+# import library 
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
+import math
+import string
+import nltk
+from nltk.stem import PorterStemmer
+import warnings #But we need to hide these warnings
+warnings.filterwarnings('ignore')
+warnings.filterwarnings('ignore', category=DeprecationWarning)
+warnings.filterwarnings("ignore",category=UserWarning)
+sns.set_style("whitegrid")
+%matplotlib inline
+np.random.seed(7)
+ df=pd.read_csv('C:/Users/Aniket/Downloads/1429_1.csv')
+print(df)
+print(len(df))
+df.shape
+df.columns
+df.head()
+df.info()
+df.dtypes
+df.tail()
+df.describe()
+# Dealing with missing values
+np.sum(df.isnull().any(axis=1))
+print('Count of columns in the data is:  ', len(df.columns))
+print('Count of rows in the data is:  ', len(df))
+df['reviews.rating'].unique()
+df['reviews.rating'].nunique()
+df['reviews.rating'].fillna(0, inplace=True)
+print(df['reviews.rating'].unique())
+df.hist(bins=50, figsize=(15,10))
+plt.show()
+sns.countplot(df['reviews.rating'])
+plt.xlabel('Rating count')
+# Pre-processing Data
+# using stop words
+from nltk.corpus import stopwords
+df['reviews.text']=df['reviews.text'].str.lower()
+stopwords_list = stopwords.words('english')
+from nltk.corpus import stopwords
+", ".join(stopwords.words('english'))
+STOPWORDS = set(stopwords.words('english'))
+def cleaning_stopwords(text):
+    return " ".join([word for word in str(text).split() if word not in STOPWORDS])
+df['reviews.text'] = df['reviews.text'].apply(lambda x: " ".join([word for word in str(x).split() if word.lower() not in STOPWORDS]))
+df['reviews.text'].head()
+english_punctuations = string.punctuation
+punctuations_list = english_punctuations
+def cleaning_punctuations(text):
+    translator = str.maketrans('', '', punctuations_list)
+    return text.translate(translator)
+df['reviews.text']= df['reviews.text'].apply(lambda x: cleaning_punctuations(x))
+df['reviews.text'].tail()
+# Using Stemming
+st = nltk.PorterStemmer()
+def stemming_on_reviews_text(text):
+    return [st.stem(word) for word in text]
+df['reviews.text'] = df['reviews.text'].apply(lambda x: stemming_on_reviews_text(x))
+df['reviews.text'].head()
+# Using Lemmatization
+lm = nltk.WordNetLemmatizer()
+def lemmatizer_on_reviews_text(text):
+    return[lm.lemmatize(word) for word in df]
+df['reviews.text'] = df['reviews.text'].apply(lambda x: lemmatizer_on_reviews_text(x))
+df['reviews.text'].head()
+x= df['reviews.text']
+x.head()
+y= df['reviews.rating']
+y.tail()
+X = df['reviews.text'].astype(str)
+# splitting Data traning= 0.7, testing 0.3
+# spliting Data for Training and Testing in two parts  
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=21)
+y_train
+# Uni-gram for results using models 
+#uni-gram
+from sklearn.feature_extraction.text import TfidfVectorizer
+vectorizer = TfidfVectorizer(ngram_range=(1,1))
+# Training data
+X_train = vectorizer.fit_transform(X_train)
+# Testing data
+X_test = vectorizer.transform(X_test)
+# Making prediction on the test set
+# uni-gram
+from sklearn.metrics import accuracy_score
+from sklearn.ensemble import RandomForestClassifier
+print("Random Forest Result")
+rfc = RandomForestClassifier(n_estimators=100, random_state=52)
+pred = rfc.fit(X_train, y_train).predict(X_test)
+print(accuracy_score(y_test,pred))
+
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import accuracy_score,classification_report
+dt = DecisionTreeClassifier(random_state=50)
+print("Decision Tree Result")
+DecisionTree=dt.fit(X_train, y_train).predict(X_test)
+print(accuracy_score(y_test,DecisionTree))
+
+from sklearn.svm import SVC
+print("Support Vector Machine Result")
+svm = SVC(kernel='linear', C=2.0, random_state=52)
+svm.fit(X_train,y_train)
+y_pred=svm.predict(X_test)
+print(accuracy_score(y_test,y_pred))
+
+from sklearn.linear_model import LogisticRegression
+lr=LogisticRegression()
+print("Logistic Regression Result")
+logisticRegresion=lr.fit(X_train, y_train).predict(X_test)
+print(accuracy_score(y_test,logisticRegresion))
+# Compute Classification report
+#uni-gram
+print("Random Forest")
+print(classification_report(y_test,pred))
+
+print("Decision Tree")
+print(classification_report(y_test,DecisionTree))
+
+print("Support Vector Machine")
+print(classification_report(y_test,y_pred))
+
+print("Logistic Regression")
+print(classification_report(y_test,logisticRegresion))
+X = df['reviews.text'].astype(str)
+# spliting for Training-Testing 
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=21)
+# bi-gram for results using models 
+#bi-gram
+from sklearn.feature_extraction.text import TfidfVectorizer
+vectorizer = TfidfVectorizer(ngram_range=(2,2))
+# Training Data
+X_train = vectorizer.fit_transform(X_train)
+# Testing Data
+X_test = vectorizer.transform(X_test)
+# Making prediction on the test set
+# bi-gram
+from sklearn.metrics import accuracy_score
+from sklearn.ensemble import RandomForestClassifier
+print("Random Forest Result")
+rfc = RandomForestClassifier(n_estimators=100, random_state=52)
+pred = rfc.fit(X_train, y_train).predict(X_test)
+print(accuracy_score(y_test,pred))
+
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import accuracy_score,classification_report
+dt = DecisionTreeClassifier(random_state=50)
+print("Decision Tree Result")
+DecisionTree=dt.fit(X_train, y_train).predict(X_test)
+print(accuracy_score(y_test,DecisionTree))
+
+from sklearn.svm import SVC
+print("Support Vector Machine Result")
+svm = SVC(kernel='linear', C=2.0, random_state=52)
+svm.fit(X_train,y_train)
+y_pred=svm.predict(X_test)
+print(accuracy_score(y_test,y_pred))
+
+from sklearn.linear_model import LogisticRegression
+lr=LogisticRegression()
+print("Logistic Regression Result")
+logisticRegresion=lr.fit(X_train, y_train).predict(X_test)
+print(accuracy_score(y_test,logisticRegresion))
+# Compute Classification report
+#bi-gram
+print("Random Forest")
+print(classification_report(y_test,pred))
+
+print("Decision Tree")
+print(classification_report(y_test,DecisionTree))
+
+print("Support Vector Machine")
+print(classification_report(y_test,y_pred))
+
+print("Logistic Regression")
+print(classification_report(y_test,logisticRegresion))
+X = df['reviews.text'].astype(str)
+# spliting for Training-Testing 
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=21)
+# Tri-gram for results using models 
+#Tri-gram
+from sklearn.feature_extraction.text import TfidfVectorizer
+vectorizer = TfidfVectorizer(ngram_range=(3,3))
+
+# Training Data
+X_train = vectorizer.fit_transform(X_train)
+
+# Testing Data
+X_test = vectorizer.transform(X_test)
+# Making prediction on the test set
+# tri-gram
+from sklearn.metrics import accuracy_score
+from sklearn.ensemble import RandomForestClassifier
+print("Random Forest Result")
+rfc = RandomForestClassifier(n_estimators=100, random_state=52)
+pred = rfc.fit(X_train, y_train).predict(X_test)
+print(accuracy_score(y_test,pred))
+
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import accuracy_score,classification_report
+dt = DecisionTreeClassifier(random_state=50)
+print("Decision Tree Result")
+DecisionTree=dt.fit(X_train, y_train).predict(X_test)
+print(accuracy_score(y_test,DecisionTree))
+
+from sklearn.svm import SVC
+print("Support Vector Machine Result")
+svm = SVC(kernel='linear', C=2.0, random_state=52, gamma=0.001)
+svm.fit(X_train, y_train)
+y_pred = svm.predict(X_test)
+print(accuracy_score(y_test, y_pred))
+
+
+from sklearn.linear_model import LogisticRegression
+lr=LogisticRegression()
+print("Logistic Regression Result")
+logisticRegresion=lr.fit(X_train, y_train).predict(X_test)
+print(accuracy_score(y_test,logisticRegresion))
+# Compute Classification report
+#tri-gram
+print("Random Forest")
+print(classification_report(y_test,pred))
+
+print("Decision Tree")
+print(classification_report(y_test,DecisionTree))
+
+print("Support Vector Machine")
+print(classification_report(y_test,y_pred))
+
+print("Logistic Regression")
+print(classification_report(y_test,logisticRegresion))
+X = df['reviews.text'].astype(str)
+# spliting for Training-Testing 
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=21)
+# n-gram for results using models 
+#n-gram
+from sklearn.feature_extraction.text import TfidfVectorizer
+vectorizer = TfidfVectorizer(ngram_range=(1,3))
+
+# Training Data
+X_train = vectorizer.fit_transform(X_train)
+
+# Testing Data
+X_test = vectorizer.transform(X_test)
+# Making prediction on the test set
+# n-gram
+from sklearn.metrics import accuracy_score
+from sklearn.ensemble import RandomForestClassifier
+print("Random Forest Result")
+rfc = RandomForestClassifier(n_estimators=100, random_state=52)
+pred = rfc.fit(X_train, y_train).predict(X_test)
+print(accuracy_score(y_test,pred))
+
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import accuracy_score,classification_report
+dt = DecisionTreeClassifier(random_state=50)
+print("Decision Tree Result")
+DecisionTree=dt.fit(X_train, y_train).predict(X_test)
+print(accuracy_score(y_test,DecisionTree))
+
+from sklearn.svm import SVC
+print("Support Vector Machine Result")
+svm = SVC(kernel='linear', C=2.0, random_state=52)
+svm.fit(X_train,y_train)
+y_pred=svm.predict(X_test)
+print(accuracy_score(y_test,y_pred))
+
+from sklearn.linear_model import LogisticRegression
+lr=LogisticRegression()
+print("Logistic Regression Result")
+logisticRegresion=lr.fit(X_train, y_train).predict(X_test)
+print(accuracy_score(y_test,logisticRegresion))
+# Compute Classification report
+#n-gram
+print("Decision Tree")
+print(classification_report(y_test,DecisionTree))
+
+print("Random Forest")
+print(classification_report(y_test,pred))
+
+print("Logistic Regression")
+print(classification_report(y_test,logisticRegresion))
+
+print("Support Vector Machine")
+print(classification_report(y_test,y_pred))
+
+
