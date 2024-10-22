@@ -1,4 +1,4 @@
-### Amazon Product Review Sentiment Analysis
+# Amazon Product Review Sentiment Analysis
 This project implements sentiment analysis on Amazon product reviews using Natural Language Processing (NLP) techniques. The analysis involves pre-processing the text data, applying various machine learning models, and evaluating their performance.
 
 ## Table of Contents
